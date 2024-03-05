@@ -1,0 +1,80 @@
+rm(list = ls())
+setwd()
+data<- read.csv('All.CSV', stringsAsFactors = FALSE)
+library(ggplot2)
+library(dplyr)
+
+
+
+# Filter the data for dogs and foxes
+dog_data <- filter(data, SpeciesX1 == 'Dog')
+fox_data <- filter(data, SpeciesX1 == 'Fox')
+
+# Add a 'Species' column to each dataset
+dog_data$Species <- 'Dog'
+fox_data$Species <- 'Fox'
+
+# Combine the datasets
+combined_data <- rbind(dog_data, fox_data)
+
+# Convert 'DateTime' to POSIXct format
+combined_data$DateTime <- as.POSIXct(combined_data$DateTime, format="%Y-%m-%d %H:%M:%S")
+
+# Create the 'HourOfDay' column
+combined_data$HourOfDay <- as.numeric(format(combined_data$DateTime, "%H")) + as.numeric(format(combined_data$DateTime, "%M"))/60
+
+# ... (previous code for creating combined_data)
+
+# Create the KDE plot
+p <- ggplot(combined_data, aes(x=HourOfDay, fill=Species)) +
+  geom_density(alpha=0.5) +
+  scale_fill_manual(values=c("blue", "red")) +
+  scale_x_continuous(
+    breaks=seq(0, 24, by=4), 
+    labels=c('12 AM', '4 AM', '8 AM', '12 PM', '4 PM', '8 PM', '12 AM')  # Add '12 AM' at the end
+  ) +
+  labs(x = 'Time of Day', y = 'Density of Activity', fill = 'Species') +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+
+p <- p +
+  theme(
+    panel.background = element_rect(fill = "white", colour = "black"),
+    axis.line = element_line(color = "black"),
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"))
+
+# Print the plot
+print(p)
+
+
+# Print the plot
+print(p)
+
+
+
+# ... (previous code for creating combined_data)
+
+# Create the KDE plot with different line types
+p <- ggplot(combined_data, aes(x=HourOfDay, color=Species)) +  # Use color instead of fill for lines
+  geom_density(aes(linetype=Species), size=1, alpha=0.5) +  # Set linetype to vary by Species
+  scale_color_manual(values=c("blue", "red")) +  # Set the colors for each species
+  scale_linetype_manual(values=c("solid", "dashed")) +  # Define line types for each species
+  scale_x_continuous(
+    breaks=seq(0, 24, by=4), 
+    labels=c('12 AM', '4 AM', '8 AM', '12 PM', '4 PM', '8 PM', '12 AM')
+  ) +
+  labs(x = 'Time of Day', y = 'Density of Activity', color = 'Species', linetype = 'Species') +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+
+
+p <- p +
+  theme(
+    panel.background = element_rect(fill = "white", colour = "black"),
+    axis.line = element_line(color = "black"),
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"))
+
+# Print the plot
+print(p)

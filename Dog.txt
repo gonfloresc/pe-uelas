@@ -1,0 +1,130 @@
+rm(list = ls())
+setwd()
+data<- read.csv('Final.CSV', stringsAsFactors = FALSE)
+library(ggplot2)
+library(dplyr)
+# Install and load the patchwork package
+install.packages("patchwork")
+library(patchwork)
+
+# Assuming 'data' is your loaded dataset with a 'SpeciesX1' column
+# Filter the data for dogs and foxes
+
+Dog_data <- filter(data, SpeciesX1 == 'Dog')
+
+# Add a 'Species' column to each dataset
+
+Dog_data$Species <- 'Dog'
+
+# Convert 'DateTime' to POSIXct format
+Dog_data$DateTime <- as.POSIXct(Dog_data$DateTime, format="%Y-%m-%d %H:%M:%S")
+
+# Create the 'HourOfDay' column
+Dog_data$HourOfDay <- as.numeric(format(Dog_data$DateTime, "%H")) + as.numeric(format(Dog_data$DateTime, "%M"))/60
+
+# Create the KDE plot for "Dog"
+# Assuming Camelidos_data has been properly prepared and HourOfDay has been created
+
+
+# Create the KDE plot with lines and no fill
+p <- ggplot(Dog_data, aes(x=HourOfDay)) +
+  geom_line(stat = "density", color="blue", size=0.5) +
+  scale_x_continuous(
+    breaks=seq(0, 24, by=4),  # Breaks every four hours
+    limits=c(0, 24),  # Ensure that x-axis limits are set from 0 to 24
+    labels=c('12 AM', '4 AM', '8 AM', '12 PM', '4 PM', '8 PM', '12 AM')  # Labels for each break
+  ) +
+  labs(x = 'Time of Day', y = 'Density of Activity') +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 0.5, color="black"),  # Centered labels in black
+    axis.title.x = element_text(color="black", size=12),  # X-axis title customization
+    axis.title.y = element_text(color="black", size=12)  # Y-axis title customization
+  )
+
+
+p <- p +
+  theme(
+    panel.background = element_rect(fill = "white", colour = "black"),
+    axis.line = element_line(color = "black"),
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"))
+print(p)
+
+
+###############################################################################
+
+# Assuming 'data' is your loaded dataset with a 'SpeciesX1' and 'Season' columns
+
+# Convert 'DateTime' to POSIXct format and create 'HourOfDay'
+data$DateTime <- as.POSIXct(data$DateTime, format="%Y-%m-%d %H:%M:%S")
+data$HourOfDay <- as.numeric(format(data$DateTime, "%H")) + as.numeric(format(data$DateTime, "%M"))/60
+
+# Filter the data for dogs and separate by season
+Dog_Winter_Data <- filter(data, SpeciesX1 == 'Dog' & Season == 'Winter')
+Dog_Summer_Data <- filter(data, SpeciesX1 == 'Dog' & Season == 'Summer')
+
+# Create the KDE plot for "Dog" in Winter
+p_winter <- ggplot(Dog_Winter_Data, aes(x=HourOfDay)) +
+  geom_density(color="blue", size=0.5) +
+  scale_x_continuous(breaks=seq(0, 24, by=4), limits=c(0, 24)) +
+  labs(x = 'Time of Day', y = 'Density of Activity', title = 'Dog Activity Pattern in Winter') +
+  theme_minimal()
+
+# Create the KDE plot for "Dog" in Summer
+p_summer <- ggplot(Dog_Summer_Data, aes(x=HourOfDay)) +
+  geom_density(color="red", size=0.5) +
+  scale_x_continuous(breaks=seq(0, 24, by=4), limits=c(0, 24)) +
+  labs(x = 'Time of Day', y = 'Density of Activity', title = 'Dog Activity Pattern in Summer') +
+  theme_minimal()
+
+# Print the plots
+print(p_winter)
+print(p_summer)
+
+# Combine the plots side by side
+(p_winter | p_summer)
+
+
+# Assuming 'data' is your loaded dataset with 'SpeciesX1' and 'Season' columns
+
+# Filter the data for dogs
+Dog_data <- filter(data, SpeciesX1 == 'Dog')
+
+# Convert 'DateTime' to POSIXct format and create 'HourOfDay'
+Dog_data$DateTime <- as.POSIXct(Dog_data$DateTime, format="%Y-%m-%d %H:%M:%S")
+Dog_data$HourOfDay <- as.numeric(format(Dog_data$DateTime, "%H")) + as.numeric(format(Dog_data$DateTime, "%M"))/60
+
+# Create a combined KDE line plot for dogs in Winter and Summer
+p_combined <- ggplot(Dog_data, aes(x=HourOfDay, color=Season, group=Season)) +
+  geom_line(stat = "density", size=0.5) +  # Use geom_line with density stat
+  scale_color_manual(values=c("Winter"="blue", "Summer"="red")) +  # Specify your colors for winter and summer
+  scale_x_continuous(
+    breaks=seq(0, 24, by=4),
+    limits=c(0, 24),
+    labels=c('12 AM', '4 AM', '8 AM', '12 PM', '4 PM', '8 PM', '12 AM')
+  ) +
+  labs(x = 'Time of Day', y = 'Density of Activity', color = 'Season') +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 0.5, color="black"),
+    axis.title.x = element_text(color="black", size=12),
+    axis.title.y = element_text(color="black", size=12),
+    legend.title = element_text(color = "black")
+  )
+
+# Print the combined line plot
+print(p_combined)
+
+p <- p_combined +
+  theme(
+    panel.background = element_rect(fill = "white", colour = "black"),
+    axis.line = element_line(color = "black"),
+    axis.text = element_text(color = "black"),
+    axis.title = element_text(color = "black"))
+print(p)
+
+
+
+
+
